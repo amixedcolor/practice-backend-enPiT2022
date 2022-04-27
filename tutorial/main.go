@@ -1,69 +1,73 @@
 package main
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
-type User struct {
-	Id    string `json:"user_id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type User struct{
+	Name string
+	Email string
+	Id string
 }
 
-var permanentData User = User{
-	Id:    "",
-	Name:  "",
-	Email: "",
+var user = User{}
+var user2 = User{}
+var user3 = User{}
+
+func createUser(name string, email string) {
+	tmpData := User{Name: name, Email: email, Id: "example-user-id"}
+	user = tmpData
 }
 
-func createUser(user User) (err error) {
-	permanentData = user
-	return nil
+func createUser2(name string, email string) {
+	tmpData := User{Name: name, Email: email, Id: "example-user-id2"}
+	user2 = tmpData
 }
 
-func readUser(id string) (user User, err error) {
-	if id == "example-user-id" {
-		user = permanentData
+func readUser(id string) (users []User) {
+	if user.Id == "example-user-id" {
+		users = append(users, user)
+		return
+	} else if id == "example-user-id2" {
+		users = append(users, user2)
+		return
+	} else if len(id) == 0 {
+		users = append(users, user)
+		users = append(users, user2)
 		return
 	} else {
-		err = errors.New(fmt.Sprintf("Error: %s", "Wrong user_id"))
-		return
+		return nil
 	}
 }
-func updateUser(user User) (err error) {
-	permanentData = user
+
+func updateUser(updateUserData User) {
+	if updateUserData.Id == "example-user-id" {
+		user = updateUserData
+	} else {
+		// IDがなかった場合は新規ユーザー登録とみなす
+		user3 = updateUserData
+		// IDが存在しないのでIDを付与する
+		user3.Id = "example-user-id3"
+	}
 	return
 }
 
-func deleteUser() (err error) {
-	permanentData = User{}
-	return
+func deleteUser() {
+	// ハードデリート
+	// user = User{}
+	// ソフトデリート
+	user.Id = "foo"
 }
 
 func main() {
-	//デフォルト値の確認
-	fmt.Println("Default user data: ", permanentData)
-	//ユーザーデータの作成
-	userData := User{Name: "notch_man", Id: "example-user-id", Email: "notchman@example.com"}
-	//ユーザーの作成
-	createUser(userData)
-	//結果の確認
-	fmt.Println("Created user data: ", permanentData)
-	//ユーザーデータの読み出し（ハッピーパス）
-	getData, _ := readUser("example-user-id")
-	fmt.Println("Read user data: ", getData)
-	//ユーザーデータの読み出し（ネガティブパス）
-	getData2, err := readUser("example-user-id-2")
-	fmt.Println("Read user data: ", getData2)
-	fmt.Println("Read user data: ", err)
-	//更新用データの作成
-	//ユーザーデータの作成
-	updatedUserData := User{Name: "notch_man", Id: "example-user-id", Email: "notchman@example.jp"}
-	_ = updateUser(updatedUserData)
-	fmt.Println("Updated user data: ", permanentData)
-
-	//データの削除
-	_ = deleteUser()
-	fmt.Println("Deleted user data: ", permanentData)
+	// Create
+	createUser("hogehoge", "hoge@example.com")
+	createUser2("piyopiyo", "piyo@example.com")
+	// Read
+	fmt.Println(readUser("example-user-id"))
+	// Update
+	updateUserData := User{Name: "hogehoge", Email: "huga@example.com", Id: "example-user-id"}
+	updateUser(updateUserData)
+	fmt.Println(readUser("example-user-id"))
+	// Delete
+	deleteUser()
+	fmt.Println(readUser("example-user-id"))
 }
